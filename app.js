@@ -422,7 +422,7 @@ async function initMap() {
     zoom: OVERVIEW_ZOOM,
     pitch: OVERVIEW_PITCH,
     bearing: OVERVIEW_BEARING,
-    dragRotate: false,
+    dragRotate: true,
     pitchWithRotate: false,
     touchPitch: false,
     maxPitch: 60,
