@@ -8,6 +8,7 @@ const SCHOOL_EMAIL = '13579.Beau@m.materdei.ac.th';
 const SCHOOL_PASSWORD = '13579.Beau';
 const CURRENT_USER_NAME = 'Beau';
 const FEEDBACK_STORAGE_KEY = 'md-explorer-community-feedback';
+const CONSENT_SESSION_KEY = 'md-explorer-feedback-consent';
 const SCHOOL_ESCORT_PLACE_IDS = new Set(['seven', 'chitlom', 'lumphini', 'police-hospital', 'erawan', 'central', 'renaissance', 'harborland']);
 
 const ICONS = {
@@ -139,6 +140,7 @@ const PLACE_IMAGES = {
 const loginScreen = document.querySelector('#login-screen');
 const appShell = document.querySelector('#app-shell');
 const loginForm = document.querySelector('#login-form');
+const consentDialog = document.querySelector('#consent-dialog');
 let map;
 let maplibregl;
 let mapReady = false;
@@ -314,11 +316,45 @@ function enterApp() {
 
 function leaveApp() {
   sessionStorage.removeItem('md-explorer-demo-session');
+  sessionStorage.removeItem(CONSENT_SESSION_KEY);
   appShell.hidden = true;
   loginScreen.hidden = false;
   selectedPlace = null;
   clearSelection();
 }
+
+function openConsent(email) {
+  document.querySelector('#consent-account-email').textContent = email;
+  const acknowledgement = document.querySelector('#consent-acknowledgement');
+  acknowledgement.checked = false;
+  document.querySelector('#consent-accept').disabled = true;
+  if (!consentDialog.open) consentDialog.showModal();
+}
+
+function closeConsentAndReturnToLogin() {
+  sessionStorage.removeItem('md-explorer-demo-session');
+  sessionStorage.removeItem(CONSENT_SESSION_KEY);
+  if (consentDialog.open) consentDialog.close();
+  appShell.hidden = true;
+  loginScreen.hidden = false;
+  showLoginError('ต้องรับทราบเงื่อนไขการเสนอความคิดเห็นก่อนเข้าสู่แผนที่');
+  document.querySelector('#email').focus();
+}
+
+document.querySelector('#consent-acknowledgement').addEventListener('change', (event) => {
+  document.querySelector('#consent-accept').disabled = !event.currentTarget.checked;
+});
+document.querySelector('#consent-accept').addEventListener('click', () => {
+  if (!document.querySelector('#consent-acknowledgement').checked) return;
+  sessionStorage.setItem(CONSENT_SESSION_KEY, 'acknowledged');
+  if (consentDialog.open) consentDialog.close();
+  enterApp();
+});
+document.querySelector('#consent-decline').addEventListener('click', closeConsentAndReturnToLogin);
+consentDialog.addEventListener('cancel', (event) => {
+  event.preventDefault();
+  closeConsentAndReturnToLogin();
+});
 
 loginForm.addEventListener('submit', (event) => {
   event.preventDefault();
@@ -329,7 +365,7 @@ loginForm.addEventListener('submit', (event) => {
     return;
   }
   showLoginError('');
-  enterApp();
+  openConsent(email);
 });
 
 document.querySelector('#toggle-password').addEventListener('click', (event) => {
@@ -872,4 +908,7 @@ document.addEventListener('keydown', (event) => {
 renderDestinationList();
 updateFeedbackForm();
 renderFeedbackEntries();
-if (sessionStorage.getItem('md-explorer-demo-session') === 'active') enterApp();
+if (sessionStorage.getItem('md-explorer-demo-session') === 'active') {
+  if (sessionStorage.getItem(CONSENT_SESSION_KEY) === 'acknowledged') enterApp();
+  else openConsent(SCHOOL_EMAIL);
+}

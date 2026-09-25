@@ -35,6 +35,24 @@
       </section>
     </div>
 
+    <dialog class="consent-dialog" id="consent-dialog" aria-labelledby="consent-title" aria-describedby="consent-description">
+      <div class="consent-dialog-mark" aria-hidden="true">✦</div>
+      <p class="eyebrow">COMMUNITY GUIDELINES</p>
+      <h2 id="consent-title">รับทราบก่อนเสนอความคิดเห็น</h2>
+      <p class="consent-account">บัญชีที่เข้าสู่ระบบ: <b id="consent-account-email"></b></p>
+      <div class="consent-copy" id="consent-description">
+        <p>หากเลือกแสดงเป็น <b>Anonymous</b> ระบบจะซ่อนชื่อจากรายการที่ผู้ใช้อื่นเห็น แต่ข้อเสนออาจเชื่อมโยงกับบัญชีโรงเรียนของคุณ</p>
+        <p>เมื่อพบเนื้อหาที่ไม่เหมาะสมหรือหยาบคาย ผู้ดูแลระบบที่ได้รับมอบหมายอาจตรวจสอบบัญชีผู้ส่ง เพื่อดูแลความปลอดภัยและความเหมาะสมของชุมชน</p>
+      </div>
+      <p class="consent-prototype-note"><b>หมายเหตุสำหรับต้นแบบ:</b> ตอนนี้ข้อเสนอถูกเก็บไว้เฉพาะในเบราว์เซอร์เครื่องนี้ ยังไม่มีระบบหลังบ้านหรือเครื่องมือให้ผู้ดูแลตรวจสอบบัญชี</p>
+      <label class="consent-check"><input id="consent-acknowledgement" type="checkbox" /><span>ฉันเข้าใจว่า Anonymous ซ่อนชื่อจากผู้ใช้ทั่วไป แต่ผู้ดูแลที่ได้รับมอบหมายอาจตรวจสอบบัญชีได้ตามกรณีข้างต้น</span></label>
+      <div class="consent-actions">
+        <button class="consent-decline" id="consent-decline" type="button">ยังไม่ยินยอม</button>
+        <button class="login-button consent-accept" id="consent-accept" type="button" disabled>รับทราบและเข้าสู่แผนที่ <span aria-hidden="true">→</span></button>
+      </div>
+      <p class="consent-repeat-note">หน้าต่างนี้จะแสดงทุกครั้งที่เข้าสู่ระบบ</p>
+    </dialog>
+
     <div class="app-shell" id="app-shell" hidden>
       <header class="topbar">
         <a class="brand-lockup app-brand" href="#top" aria-label="นักสำรวจตัวน้อย หน้าหลัก">
