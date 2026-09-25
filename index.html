@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f8f6ef" />
+    <meta name="description" content="แผนที่การเรียนรู้นอกห้องเรียนรอบโรงเรียนมาแตร์เดอีวิทยาลัย" />
+    <title>นักสำรวจตัวน้อย · Mater Dei</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&family=Noto+Sans+Thai:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/maplibre-gl@6.11.2/dist/maplibre-gl.css" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="login-screen" id="login-screen">
+      <section class="login-card" aria-labelledby="login-title">
+        <div class="brand-lockup">
+          <div class="brand-mark"><img src="img/materdei.webp" alt="ตราโรงเรียนมาแตร์เดอี" /></div>
+          <div><strong>little explorers</strong><span>Mater Dei · Learning map</span></div>
+        </div>
+        <div class="welcome-chip"><span class="chip-dot"></span> พื้นที่สำหรับครูและผู้ปกครอง</div>
+        <h1 id="login-title">ออกไปเรียนรู้<br /><em>รอบโรงเรียนกัน!</em></h1>
+        <p class="login-intro">ล็อกอินด้วยอีเมลโรงเรียน เพื่อเริ่มสำรวจสถานที่เรียนรู้นอกห้องเรียนไปด้วยกัน</p>
+        <form id="login-form" novalidate>
+          <label for="email">อีเมลโรงเรียน</label>
+          <div class="input-wrap"><span class="input-icon">@</span><input id="email" name="email" type="email" autocomplete="username" value="13579.Beau@m.materdei.ac.th" required /></div>
+          <label for="password">รหัสผ่าน</label>
+          <div class="input-wrap"><svg class="input-icon lock-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 4v3"/></svg><input id="password" name="password" type="password" autocomplete="current-password" value="13579.Beau" required /><button class="reveal-password" id="toggle-password" type="button" aria-label="แสดงรหัสผ่าน">แสดง</button></div>
+          <p class="login-error" id="login-error" aria-live="polite"></p>
+          <button class="login-button" type="submit">เริ่มออกสำรวจ <span aria-hidden="true">→</span></button>
+        </form>
+        <div class="demo-note"><span class="demo-icon">i</span><span>บัญชีตัวอย่าง: <b>13579.Beau@m.materdei.ac.th</b><br />รหัสผ่าน: <b>13579.Beau</b></span></div>
+        <div class="privacy-note"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.6 2.8 8.1 7 10 4.2-1.9 7-5.4 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></svg> เข้าถึงได้เฉพาะสมาชิกชุมชนมาแตร์เดอี</div>
+      </section>
+    </div>
+
+    <div class="app-shell" id="app-shell" hidden>
+      <header class="topbar">
+        <a class="brand-lockup app-brand" href="#top" aria-label="นักสำรวจตัวน้อย หน้าหลัก">
+          <div class="brand-mark"><img src="img/materdei.webp" alt="ตราโรงเรียนมาแตร์เดอี" /></div>
+          <div><strong>little explorers</strong><span>แผนที่เรียนรู้รอบมาแตร์เดอี</span></div>
+        </a>
+        <div class="topbar-center"><span class="live-dot"></span> แผนที่ภารกิจ <span class="topbar-divider"></span><span class="topbar-sub">กรุงเทพฯ · ปทุมวัน</span></div>
+        <div class="topbar-actions">
+          <div class="user-profile"><div class="user-name"><b>คุณ Beau</b><span>ผู้ปกครอง</span></div><div class="user-avatar" aria-hidden="true">B</div></div>
+          <button class="icon-button help-button" id="help-button" type="button" aria-label="วิธีใช้งาน" title="วิธีใช้งาน"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.8 9a2.3 2.3 0 1 1 3.8 1.7c-.9.7-1.6 1.1-1.6 2.3m0 3h.01"/></svg></button>
+          <button class="signout-button" id="signout-button" type="button" aria-label="ออกจากระบบ" title="ออกจากระบบ"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17l5-5-5-5M15 12H3"/><path d="M12 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6"/></svg></button>
+        </div>
+      </header>
+
+      <main class="workspace" id="top">
+        <aside class="quest-panel" aria-label="รายการสถานที่เรียนรู้">
+          <div class="quest-heading">
+            <div><p class="eyebrow">YOUR NEIGHBORHOOD</p><h1>ภารกิจรอบโรงเรียน</h1></div>
+            <span class="quest-sticker" aria-label="ภารกิจ 15 จุด"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 2.2 6.1L20 6l-2.1 5.8L24 14l-6.1 2.2L20 22l-5.8-2.1L12 26l-2.2-6.1L4 22l2.1-5.8L0 14l6.1-2.2L4 6l5.8 2.1z" transform="translate(0 -2) scale(.95)"/></svg><b>15</b></span>
+          </div>
+          <p class="quest-description">ชวนเด็ก ๆ ออกไปเปิดโลกใกล้บ้าน<br /><strong>จุดเริ่มต้น: โรงเรียนมาแตร์เดอี</strong></p>
+
+          <div class="section-label"><h2>เลือกแหล่งเรียนรู้นอกโรงเรียน</h2><button id="reset-map" class="text-button" type="button">ดูทั้งหมด</button></div>
+          <div class="search-box"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg><input id="search-input" type="search" placeholder="ค้นหาสถานที่..." aria-label="ค้นหาสถานที่" /></div>
+          <div class="category-filters" id="category-filters" aria-label="กรองตามประเภท">
+            <button class="filter-chip active" data-category="all" type="button" aria-pressed="true">ทั้งหมด</button>
+            <button class="filter-chip" data-category="nature" type="button" aria-pressed="false">ธรรมชาติ</button>
+            <button class="filter-chip" data-category="culture" type="button" aria-pressed="false">วัฒนธรรม</button>
+            <button class="filter-chip" data-category="play" type="button" aria-pressed="false">เล่นสนุก</button>
+            <button class="filter-chip" data-category="community" type="button" aria-pressed="false">ชุมชน</button>
+          </div>
+          <div class="destination-list" id="destination-list"></div>
+          <div class="sidebar-footer"><span class="footer-spark">✦</span><span>ก้าวเล็ก ๆ ของวันนี้<br /><b>คือการเรียนรู้ครั้งใหญ่</b></span><span class="footer-footprint">••</span></div>
+        </aside>
+
+        <section class="map-stage" aria-label="แผนที่สามมิติ">
+          <div id="map" role="application" aria-label="แผนที่สถานที่เรียนรู้รอบโรงเรียนมาแตร์เดอี"></div>
+          <div class="map-top-overlay">
+            <div class="map-label"><span class="map-label-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-5.1 7-12a7 7 0 1 0-14 0c0 6.9 7 12 7 12Z"/><circle cx="12" cy="9" r="2.3"/></svg></span><span><b>แผนที่ผจญภัย</b><small>ซูมเข้าเพื่อดูแหล่งเรียนรู้ใกล้ ๆ</small></span></div>
+            <div class="radius-pill"><span class="radius-dash"></span><span><b>วงสำรวจ 3 กม.</b><small>จากโรงเรียนมาแตร์เดอี</small></span><button id="radius-toggle" type="button" aria-label="แสดงหรือซ่อนวงสำรวจ" aria-pressed="true"><span></span></button></div>
+          </div>
+          <div class="map-bottom-overlay">
+            <div class="map-legend"><span class="legend-school"><i></i> จุดเริ่มต้น</span><span><i class="legend-place"></i> แหล่งเรียนรู้</span><span><i class="legend-route"></i> เส้นทางเดิน</span></div>
+            <div class="map-hint"><kbd>คลิก</kbd> หมุดเพื่อออกเดินทาง <span>·</span> ลากแผนที่เพื่อสำรวจ</div>
+          </div>
+          <button id="locate-school" class="school-locate" type="button" aria-label="กลับไปยังโรงเรียน" title="กลับไปยังโรงเรียน"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7M5 10v10h14V10M9 20v-6h6v6"/><circle cx="12" cy="11" r="1"/></svg></button>
+          <div class="map-loading" id="map-loading"><span class="loading-spinner"></span><span>กำลังจัดเตรียมแผนที่...</span></div>
+        </section>
+
+        <aside class="detail-panel" id="detail-panel" aria-live="polite" aria-label="รายละเอียดสถานที่">
+          <div class="detail-empty school-profile" id="detail-empty">
+            <div class="school-seal"><img src="img/materdei.webp" alt="ตราโรงเรียนมาแตร์เดอีวิทยาลัย" /></div>
+            <p class="school-profile-overline">OUR STARTING POINT</p>
+            <h2>โรงเรียนมาแตร์เดอีวิทยาลัย</h2>
+            <p class="school-serviam">SERVIAM · ข้าพเจ้าจะรับใช้</p>
+            <p class="school-history">โรงเรียนมาแตร์เดอีวิทยาลัยเป็นโรงเรียนแรกที่คณะอุร์สุลินก่อตั้งขึ้นในประเทศไทย เปิดเรียนอย่างเป็นทางการเมื่อวันที่ 6 กุมภาพันธ์ พ.ศ. 2471 โดยมีนักเรียนรุ่นแรก 45 คน</p>
+            <div class="school-facts">
+              <div><b>พ.ศ. 2471</b><span>ปีแรกที่เปิดเรียน</span></div>
+              <div><b>45 คน</b><span>นักเรียนรุ่นแรก</span></div>
+            </div>
+            <div class="school-learning-note"><span>✦</span><p>ทุกการเดินทางเริ่มต้นจากโรงเรียน แล้วพาเด็ก ๆ ไปเรียนรู้จากโลกจริงรอบตัว</p></div>
+            <a class="school-history-link" href="https://materdei.ac.th/about/history" target="_blank" rel="noopener noreferrer">อ่านประวัติโรงเรียน <span aria-hidden="true">↗</span></a>
+          </div>
+          <article class="place-card" id="place-card" hidden>
+            <div class="detail-card-head">
+              <div class="detail-category-icon" id="detail-icon"></div>
+              <button id="close-detail" class="close-detail" type="button" aria-label="ปิดรายละเอียด">×</button>
+              <span class="detail-category-tag" id="detail-category"></span>
+            </div>
+            <div class="detail-title-wrap"><p class="detail-overline" id="detail-overline">YOUR NEXT DISCOVERY</p><h2 id="detail-title"></h2><p class="detail-subtitle" id="detail-subtitle"></p></div>
+            <div class="route-summary">
+              <div class="route-line-art"><span class="route-start-dot"></span><i></i><span class="route-end-dot"></span></div>
+              <div class="route-metrics"><div><small>ระยะทางเดิน</small><b id="route-distance">กำลังคำนวณ...</b></div><div class="metric-divider"></div><div><small>ใช้เวลาประมาณ</small><b id="route-duration">—</b></div></div>
+              <p class="route-from"><span class="from-dot"></span> เริ่มต้นจาก <b>โรงเรียนมาแตร์เดอี</b></p>
+            </div>
+            <div class="learning-block"><div class="learning-heading"><span class="learning-star">✦</span><h3>ชวนเด็ก ๆ เรียนรู้อะไรได้บ้าง</h3></div><p id="learning-copy"></p></div>
+            <div class="activity-block"><h3><span>✧</span> ไอเดียกิจกรรม</h3><div class="activity-list" id="activity-list"></div></div>
+            <div class="detail-note" id="detail-note"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.6 2.8 8.1 7 10 4.2-1.9 7-5.4 7-10V6l-7-3Z"/><path d="M12 8v4m0 4h.01"/></svg><span>ก่อนออกเดินทาง ตรวจสอบเวลาเปิด-ปิดและการเข้าชมกับสถานที่อีกครั้ง</span></div>
+            <a class="directions-button" id="directions-link" href="#" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 18-8-8 18-2-8-8-2Z"/><path d="m11 13 4-4"/></svg> เปิดเส้นทางใน Google Maps <span>↗</span></a>
+            <button class="back-to-map" id="back-to-map" type="button">กลับไปดูแผนที่ทั้งหมด</button>
+          </article>
+          <div class="detail-footer"><span class="footer-shield"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.6 2.8 8.1 7 10 4.2-1.9 7-5.4 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></svg></span><span>ออกสำรวจอย่างปลอดภัย<br /><b>ไปกับคุณครูหรือผู้ปกครองเสมอ</b></span></div>
+        </aside>
+      </main>
+      <div class="help-modal" id="help-modal" hidden>
+        <div class="modal-backdrop" data-dismiss-help></div>
+        <section class="help-dialog" role="dialog" aria-modal="true" aria-labelledby="help-title">
+          <button class="close-detail help-close" type="button" data-dismiss-help aria-label="ปิด">×</button>
+          <p class="eyebrow">A LITTLE FIELD GUIDE</p><h2 id="help-title">แผนที่นี้เล่นยังไงนะ?</h2>
+          <ol><li><b>เลือกหมุด</b><span>ดูรายละเอียดกิจกรรมของสถานที่นั้น ๆ</span></li><li><b>ชมเส้นทาง</b><span>แผนที่จะซูมไปตามเส้นทางเดินจากโรงเรียน</span></li><li><b>ออกไปสำรวจด้วยกัน</b><span>คุณครูหรือผู้ปกครองควรไปด้วยทุกครั้ง</span></li></ol>
+          <button class="login-button help-done" type="button" data-dismiss-help>เข้าใจแล้ว</button>
+        </section>
+      </div>
+    </div>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
