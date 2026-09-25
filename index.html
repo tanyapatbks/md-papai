@@ -53,7 +53,6 @@
         <aside class="quest-panel" aria-label="รายการสถานที่เรียนรู้">
           <div class="quest-heading">
             <div><p class="eyebrow">YOUR NEIGHBORHOOD</p><h1>ภารกิจรอบโรงเรียน</h1></div>
-            <span class="quest-sticker" aria-label="ภารกิจ 15 จุด"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 2.2 6.1L20 6l-2.1 5.8L24 14l-6.1 2.2L20 22l-5.8-2.1L12 26l-2.2-6.1L4 22l2.1-5.8L0 14l6.1-2.2L4 6l5.8 2.1z" transform="translate(0 -2) scale(.95)"/></svg><b>15</b></span>
           </div>
           <p class="quest-description">ชวนเด็ก ๆ ออกไปเปิดโลกใกล้บ้าน<br /><strong>จุดเริ่มต้น: โรงเรียนมาแตร์เดอี</strong></p>
 
@@ -90,13 +89,38 @@
             <p class="school-profile-overline">OUR STARTING POINT</p>
             <h2>โรงเรียนมาแตร์เดอีวิทยาลัย</h2>
             <p class="school-serviam">SERVIAM · ข้าพเจ้าจะรับใช้</p>
-            <p class="school-history">โรงเรียนมาแตร์เดอีวิทยาลัยเป็นโรงเรียนแรกที่คณะอุร์สุลินก่อตั้งขึ้นในประเทศไทย เปิดเรียนอย่างเป็นทางการเมื่อวันที่ 6 กุมภาพันธ์ พ.ศ. 2471 โดยมีนักเรียนรุ่นแรก 45 คน</p>
-            <div class="school-facts">
-              <div><b>พ.ศ. 2471</b><span>ปีแรกที่เปิดเรียน</span></div>
-              <div><b>45 คน</b><span>นักเรียนรุ่นแรก</span></div>
-            </div>
-            <div class="school-learning-note"><span>✦</span><p>ทุกการเดินทางเริ่มต้นจากโรงเรียน แล้วพาเด็ก ๆ ไปเรียนรู้จากโลกจริงรอบตัว</p></div>
-            <a class="school-history-link" href="https://materdei.ac.th/about/history" target="_blank" rel="noopener noreferrer">อ่านประวัติโรงเรียน <span aria-hidden="true">↗</span></a>
+            <section class="community-feedback" aria-labelledby="feedback-title">
+              <div class="feedback-heading"><span class="feedback-heading-icon" aria-hidden="true">✎</span><div><p>YOUR VOICE MATTERS</p><h3 id="feedback-title">เสนอความคิดเห็น<br /><span>/ แหล่งเรียนรู้ในชุมชน</span></h3></div></div>
+              <p class="feedback-intro">ช่วยกันแบ่งปันไอเดีย เพื่อให้เด็ก ๆ มีพื้นที่เรียนรู้ใกล้บ้านมากขึ้น</p>
+              <form class="feedback-form" id="feedback-form">
+                <fieldset class="feedback-kind-group">
+                  <legend>ต้องการเสนอเรื่องใด</legend>
+                  <label class="feedback-kind-option"><input type="radio" name="feedback-kind" value="comment" checked /><span>✦ ความคิดเห็น</span></label>
+                  <label class="feedback-kind-option"><input type="radio" name="feedback-kind" value="place" /><span>⌖ แหล่งเรียนรู้ใหม่</span></label>
+                </fieldset>
+                <label class="feedback-field" id="feedback-place-field" for="feedback-place" hidden>ชื่อแหล่งเรียนรู้
+                  <input id="feedback-place" name="place" type="text" maxlength="100" placeholder="เช่น ห้องสมุดหรือสวนในชุมชน" />
+                </label>
+                <label class="feedback-field" for="feedback-message"><span id="feedback-message-label">ความคิดเห็น</span>
+                  <textarea id="feedback-message" name="message" rows="3" maxlength="600" placeholder="เล่าไอเดียหรือรายละเอียดที่อยากแบ่งปัน..." required></textarea>
+                </label>
+                <fieldset class="feedback-author-group">
+                  <legend>แสดงชื่อผู้เสนอเป็น</legend>
+                  <div class="feedback-author-options">
+                    <label class="feedback-author-option"><input type="radio" name="feedback-author" value="real" checked /><span class="feedback-author-icon" aria-hidden="true">👤</span><span><b>ชื่อบัญชีจริง</b><small id="feedback-real-name">Beau</small></span></label>
+                    <label class="feedback-author-option"><input type="radio" name="feedback-author" value="anonymous" /><span class="feedback-author-icon" aria-hidden="true">🙈</span><span><b>Anonymous</b><small>ไม่แสดงชื่อ</small></span></label>
+                  </div>
+                </fieldset>
+                <p class="feedback-author-preview" id="feedback-author-preview" aria-live="polite">จะแสดงชื่อ Beau</p>
+                <button class="feedback-submit" type="submit">ส่งข้อเสนอ <span aria-hidden="true">→</span></button>
+                <p class="feedback-storage-note">ต้นแบบนี้บันทึกข้อเสนอไว้ในเบราว์เซอร์เครื่องนี้ ยังไม่ได้ส่งให้โรงเรียน</p>
+                <p class="feedback-status" id="feedback-status" role="status" aria-live="polite"></p>
+              </form>
+              <section class="community-suggestions" id="community-suggestions" aria-labelledby="community-suggestions-title" hidden>
+                <div class="community-suggestions-heading"><h4 id="community-suggestions-title">ข้อเสนอที่บันทึกในเครื่องนี้</h4><span id="feedback-count">0</span></div>
+                <div class="feedback-list" id="feedback-list"></div>
+              </section>
+            </section>
           </div>
           <article class="place-card" id="place-card" hidden>
             <div class="detail-card-head">
@@ -116,7 +140,6 @@
             <a class="directions-button" id="directions-link" href="#" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 18-8-8 18-2-8-8-2Z"/><path d="m11 13 4-4"/></svg> เปิดเส้นทางใน Google Maps <span>↗</span></a>
             <button class="back-to-map" id="back-to-map" type="button">กลับไปดูแผนที่ทั้งหมด</button>
           </article>
-          <div class="detail-footer"><span class="footer-shield"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.6 2.8 8.1 7 10 4.2-1.9 7-5.4 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></svg></span><span>ออกสำรวจอย่างปลอดภัย<br /><b>ไปกับคุณครูหรือผู้ปกครองเสมอ</b></span></div>
         </aside>
       </main>
       <div class="help-modal" id="help-modal" hidden>

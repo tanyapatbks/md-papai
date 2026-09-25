@@ -6,6 +6,9 @@ const OVERVIEW_BEARING = -8;
 const PLACE_MARKER_REVEAL_DELTA = .65;
 const SCHOOL_EMAIL = '13579.Beau@m.materdei.ac.th';
 const SCHOOL_PASSWORD = '13579.Beau';
+const CURRENT_USER_NAME = 'Beau';
+const FEEDBACK_STORAGE_KEY = 'md-explorer-community-feedback';
+const SCHOOL_ESCORT_PLACE_IDS = new Set(['seven', 'chitlom', 'lumphini', 'police-hospital', 'erawan', 'central', 'renaissance', 'harborland']);
 
 const ICONS = {
   school: '<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M9 21v-7h6v7M7 11h.01M12 11h.01M17 11h.01"/>',
@@ -36,7 +39,7 @@ const CATEGORIES = {
 
 const PLACES = [
   {
-    id: 'seven', name: '7-Eleven หลังสวน', short: '7-Eleven', category: 'community', icon: 'shop', lat: 13.7429412, lng: 100.5438054,
+    id: 'seven', name: 'เซเว่นตรงข้ามโรงเรียน', short: '7-Eleven', category: 'community', icon: 'shop', lat: 13.7429412, lng: 100.5438054,
     intro: 'ร้านสะดวกซื้อใกล้โรงเรียน ชวนเด็กสังเกตว่าสินค้าและบริการช่วยคนในชุมชนได้อย่างไร',
     activities: ['ตามหาสัญลักษณ์บนฉลาก', 'ฝึกทักทายและต่อคิว', 'เรียนรู้การใช้เงิน'], age: 'วัยอนุบาล · สังเกตชุมชน',
   },
@@ -152,6 +155,7 @@ let activeFilter = 'all';
 let searchTerm = '';
 let radiusVisible = true;
 let savedPlaces = loadSavedPlaces();
+let feedbackEntries = loadFeedbackEntries();
 
 function icon(name, cls = '') {
   return `<svg${cls ? ` class="${cls}"` : ''} viewBox="0 0 24 24" aria-hidden="true">${ICONS[name] || ICONS.star}</svg>`;
@@ -169,6 +173,131 @@ function savePlaceIds() {
   localStorage.setItem('md-explorer-saved', JSON.stringify([...savedPlaces]));
   renderDestinationList();
 }
+
+function loadFeedbackEntries() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(FEEDBACK_STORAGE_KEY) || '[]');
+    return Array.isArray(stored) ? stored.filter((entry) => entry && typeof entry.message === 'string') : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveFeedbackEntries() {
+  try {
+    localStorage.setItem(FEEDBACK_STORAGE_KEY, JSON.stringify(feedbackEntries));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function accountDisplayName() {
+  return document.querySelector('.user-name b')?.textContent.replace(/^คุณ\s*/, '').trim() || CURRENT_USER_NAME;
+}
+
+function renderFeedbackEntries() {
+  const section = document.querySelector('#community-suggestions');
+  const list = document.querySelector('#feedback-list');
+  if (!section || !list) return;
+  section.hidden = feedbackEntries.length === 0;
+  document.querySelector('#feedback-count').textContent = String(feedbackEntries.length);
+  list.replaceChildren();
+
+  feedbackEntries.forEach((entry) => {
+    const card = document.createElement('article');
+    card.className = 'feedback-entry';
+    const meta = document.createElement('div');
+    meta.className = 'feedback-entry-meta';
+    const type = document.createElement('span');
+    type.className = 'feedback-entry-type';
+    type.textContent = entry.kind === 'place' ? 'แหล่งเรียนรู้ใหม่' : 'ความคิดเห็น';
+    const author = document.createElement('span');
+    author.className = 'feedback-entry-author';
+    author.textContent = entry.author === 'anonymous' ? 'Anonymous' : accountDisplayName();
+    meta.append(type, author);
+
+    const message = document.createElement('p');
+    message.className = 'feedback-entry-message';
+    message.textContent = entry.message;
+    card.append(meta);
+    if (entry.kind === 'place' && entry.placeName) {
+      const placeName = document.createElement('h5');
+      placeName.className = 'feedback-entry-place';
+      placeName.textContent = entry.placeName;
+      card.append(placeName);
+    }
+    card.append(message);
+
+    const footer = document.createElement('div');
+    footer.className = 'feedback-entry-footer';
+    const date = document.createElement('time');
+    const createdAt = new Date(entry.createdAt);
+    date.textContent = Number.isNaN(createdAt.getTime()) ? '' : new Intl.DateTimeFormat('th-TH', { day: 'numeric', month: 'short' }).format(createdAt);
+    if (!Number.isNaN(createdAt.getTime())) date.dateTime = createdAt.toISOString();
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.className = 'feedback-remove';
+    remove.textContent = 'ลบข้อเสนอนี้';
+    remove.setAttribute('aria-label', `ลบข้อเสนอ${entry.placeName ? ` ${entry.placeName}` : ''}`);
+    remove.addEventListener('click', () => {
+      feedbackEntries = feedbackEntries.filter((saved) => saved.id !== entry.id);
+      saveFeedbackEntries();
+      renderFeedbackEntries();
+    });
+    footer.append(date, remove);
+    card.append(footer);
+    list.append(card);
+  });
+}
+
+function updateFeedbackForm() {
+  const kind = document.querySelector('input[name="feedback-kind"]:checked')?.value || 'comment';
+  const placeField = document.querySelector('#feedback-place-field');
+  const placeInput = document.querySelector('#feedback-place');
+  const isPlaceSuggestion = kind === 'place';
+  placeField.hidden = !isPlaceSuggestion;
+  placeInput.required = isPlaceSuggestion;
+  document.querySelector('#feedback-message-label').textContent = isPlaceSuggestion ? 'รายละเอียดแหล่งเรียนรู้' : 'ความคิดเห็น';
+  document.querySelector('#feedback-message').placeholder = isPlaceSuggestion
+    ? 'เล่าว่าเด็ก ๆ จะได้เรียนรู้อะไร หรือควรติดต่อใครก่อน...'
+    : 'เล่าไอเดียหรือรายละเอียดที่อยากแบ่งปัน...';
+
+  const authorMode = document.querySelector('input[name="feedback-author"]:checked')?.value || 'real';
+  document.querySelector('#feedback-author-preview').textContent = authorMode === 'anonymous'
+    ? 'จะแสดงชื่อ Anonymous'
+    : `จะแสดงชื่อ ${accountDisplayName()}`;
+}
+
+const feedbackForm = document.querySelector('#feedback-form');
+feedbackForm.querySelectorAll('input[name="feedback-kind"],input[name="feedback-author"]').forEach((input) => {
+  input.addEventListener('change', updateFeedbackForm);
+});
+feedbackForm.addEventListener('submit', (event) => {
+  event.preventDefault();
+  const values = new FormData(feedbackForm);
+  const message = String(values.get('message') || '').trim();
+  const kind = String(values.get('feedback-kind') || 'comment');
+  const placeName = String(values.get('place') || '').trim();
+  if (!message || (kind === 'place' && !placeName)) return;
+
+  feedbackEntries.unshift({
+    id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    kind,
+    placeName,
+    message,
+    author: values.get('feedback-author') === 'anonymous' ? 'anonymous' : 'real',
+    createdAt: new Date().toISOString(),
+  });
+  feedbackEntries = feedbackEntries.slice(0, 50);
+  const saved = saveFeedbackEntries();
+  renderFeedbackEntries();
+  feedbackForm.reset();
+  updateFeedbackForm();
+  document.querySelector('#feedback-status').textContent = saved
+    ? 'บันทึกข้อเสนอไว้ในเบราว์เซอร์เครื่องนี้แล้ว'
+    : 'เพิ่มข้อเสนอในหน้านี้แล้ว แต่บันทึกลงเบราว์เซอร์ไม่สำเร็จ';
+});
 
 function showLoginError(message) {
   document.querySelector('#login-error').textContent = message;
@@ -246,8 +375,11 @@ function renderDestinationList() {
     const distance = distanceKm(SCHOOL, place);
     const selected = selectedPlace?.id === place.id ? ' selected' : '';
     const saved = savedPlaces.has(place.id) ? `<span class="saved-mark" aria-label="บันทึกแล้ว">${icon('star')}</span>` : '';
-    return `<button class="destination-item${selected}" type="button" data-place="${place.id}" style="--place-color:${category.color}" aria-label="ดูรายละเอียด ${place.name}" aria-pressed="${Boolean(selectedPlace?.id === place.id)}">
-      <span class="list-icon list-icon-${place.id}"><img src="${PLACE_IMAGES[place.id]}" alt="" loading="lazy" /></span><span class="destination-copy"><b>${place.name}</b><span>${category.label}${place.outside ? ' · นอกวง 3 กม.' : ''}</span></span><span class="item-distance${place.outside ? ' outside' : ''}">${formatDistance(distance)}</span>${saved}
+    const hasSchoolEscort = SCHOOL_ESCORT_PLACE_IDS.has(place.id);
+    const escortDescription = hasSchoolEscort ? 'ผู้ปกครองหรือคุณครูพาไป' : 'ผู้ปกครองพาไป';
+    const escorts = `<span class="visit-mode-icons" aria-label="${escortDescription}"><span class="visit-mode-parent" role="img" aria-label="ผู้ปกครองพาไป" title="ผู้ปกครองพาไป">👩‍👦</span>${hasSchoolEscort ? '<span class="visit-mode-teacher" role="img" aria-label="โรงเรียนหรือคุณครูพาไป" title="โรงเรียนหรือคุณครูพาไป">👩‍🏫</span>' : ''}</span>`;
+    return `<button class="destination-item${selected}" type="button" data-place="${place.id}" style="--place-color:${category.color}" aria-label="ดูรายละเอียด ${place.name} · ${escortDescription}" aria-pressed="${Boolean(selectedPlace?.id === place.id)}">
+      <span class="list-icon list-icon-${place.id}"><img src="${PLACE_IMAGES[place.id]}" alt="" loading="lazy" /></span><span class="destination-copy"><span class="destination-name-row"><b class="destination-name">${place.name}</b>${escorts}</span><span>${category.label}${place.outside ? ' · นอกวง 3 กม.' : ''}</span></span><span class="item-distance${place.outside ? ' outside' : ''}">${formatDistance(distance)}</span>${saved}
     </button>`;
   }).join('');
   container.querySelectorAll('[data-place]').forEach((button) => button.addEventListener('click', () => selectPlace(button.dataset.place)));
@@ -738,4 +870,6 @@ document.addEventListener('keydown', (event) => {
 });
 
 renderDestinationList();
+updateFeedbackForm();
+renderFeedbackEntries();
 if (sessionStorage.getItem('md-explorer-demo-session') === 'active') enterApp();
